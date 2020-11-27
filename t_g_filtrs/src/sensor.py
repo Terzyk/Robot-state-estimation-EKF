@@ -4,22 +4,20 @@ import math
 from t_g_filtrs.msg import CarControl
 from t_g_filtrs.msg import CarState
 import numpy as np
+import random
+from nav_msgs.msg import Path
+from geometry_msgs.msg import PoseStamped
+
 
 msg = CarState()
 t_0 = 0.0
 init_scan = 0
 
-w_0b = np.random.rand(0.2)
-w_0th = np.random.rand(0.2)
-w_0x = np.random.rand(0.2)
-w_0y = np.random.rand(0.2)
-beta_pred = 0.0
-q0_pred = 0.0
-q1_pred = 0.0
-q2_pred = 0.0
+path_msg = Path()
+path_msg.header.frame_id = 'map'
 
-
-kinematyka_vect = []
+odebrano = 0
+n= 1
 
 def ster_callback(data):
     global t_0
@@ -28,23 +26,36 @@ def ster_callback(data):
         t_0 = rp.get_rostime()
     t = rp.get_rostime()
     init_scan =  1
-    delta_t = float(t.secs - (t_0.secs)*r)
-    msg.beta,msg.theta,msg.x,msg.y = kinematyka(data.beta,data.q0,data.q1,data.q2,delta_t)
-
-    print("####")
+    delta_t = float(t.secs - t_0.secs)
+    msg.beta,msg.theta,msg.x,msg.y = kinematyka(data.beta,data.theta,data.x,data.y,delta_t)
     state_pub.publish(msg)
     rp.loginfo(msg)
-    r.sleep()
+    #r.sleep()
 
 
 def kinematyka(beta,q0,q1,q2,delta_t):
-    global w_0b,w_0th,w_0x,w_0y,beta_pred,q0_pred,q1_pred,q2_pred
-
-    beta_pred = beta + delta_t*
-    beta = w_0b * beta_pred + (1 - w_0b) * beta
-    q0 = w_0th * beta_pred + (1 - w_0th) * beta
-    q1 = w_0x * beta_pred + (1 - w_0x) * beta
-    q2 = w_0y * beta_pred + (1 - w_0y) * beta
+    global odebrano,n,path_msgs
+    r = random.random()
+    beta = beta + r
+    q0 = q0 + r
+    q1 = q1 + r
+    q2 = q2 + r
+    # path #
+    pose = PoseStamped()
+    pose.pose.position.x = q1
+    pose.pose.position.y = q2
+    pose.pose.position.z = 0
+    pose.pose.orientation.x = 0
+    pose.pose.orientation.y = 0
+    pose.pose.orientation.z = 0
+    pose.pose.orientation.w = 1
+    pose.header.frame_id = 'map'
+    pose.header.stamp = rp.Time.now()
+    path_msg.poses.append(pose)
+    odebrano+=1
+    if odebrano == n*10:
+        path_pub.publish(path_msg)
+        n+=1
     return beta,q0,q1,q2
 
 
@@ -52,9 +63,10 @@ def listener():
     rp.spin()
 
 if __name__ == '__main__':
-    state_pub = rp.Publisher('CarState_signals', CarState)
+    path_pub = rp.Publisher('path_sensor', Path, queue_size=10)
+    state_pub = rp.Publisher('CarState_signals_with_Larm', CarState)
     rp.init_node('sensor', anonymous=True)
-    rp.Subscriber("CarState_signals", CarControl, ster_callback)
+    rp.Subscriber("CarState_signals", CarState, ster_callback)
     r = rp.Rate(0.01) #100hz
     while not rp.is_shutdown():
         listener()
