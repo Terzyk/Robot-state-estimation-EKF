@@ -8,7 +8,6 @@ import random
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
 
-
 msg = CarState()
 t_0 = 0.0
 init_scan = 0
@@ -18,6 +17,8 @@ path_msg.header.frame_id = 'map'
 
 odebrano = 0
 n= 1
+
+mu,sigma = 0.01,0.01
 
 def ster_callback(data):
     global t_0
@@ -29,17 +30,24 @@ def ster_callback(data):
     delta_t = float(t.secs - t_0.secs)
     msg.beta,msg.theta,msg.x,msg.y = kinematyka(data.beta,data.theta,data.x,data.y,delta_t)
     state_pub.publish(msg)
-    rp.loginfo(msg)
+    #rp.loginfo(msg)
     #r.sleep()
 
 
 def kinematyka(beta,q0,q1,q2,delta_t):
-    global odebrano,n,path_msgs
-    r = random.random()
-    beta = beta + r
-    q0 = q0 + r
-    q1 = q1 + r
-    q2 = q2 + r
+    global mu,sigma,odebrano,n,path_msgs
+    r_beta = np.random.normal(mu, sigma, 1)
+    r_q0 = np.random.normal(mu, sigma, 1)
+    r_q1 = np.random.normal(mu, sigma, 1)
+    r_q2 = np.random.normal(mu, sigma, 1)
+    print(r_beta)
+    print(r_q0)
+    print(r_q1)
+    print(r_q2)
+    beta = beta + r_beta
+    q0 = q0 + r_q0
+    q1 = q1 + r_q1
+    q2 = q2 + r_q2
     # path #
     pose = PoseStamped()
     pose.pose.position.x = q1

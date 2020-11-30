@@ -9,6 +9,7 @@
 <node pkg="t_g_filtrs" name="sterownik" type="sterownik.py" output="screen" />
 <node pkg="t_g_filtrs" name="symulator" type="symulator.py" output="screen" />
 <node pkg="t_g_filtrs" name="sensor" type="sensor.py" output="screen" />
+    <node pkg="t_g_filtrs" name="estymator" type="estymator.py" output="screen" />
 </launch>
 
 

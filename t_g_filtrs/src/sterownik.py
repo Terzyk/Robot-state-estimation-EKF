@@ -17,7 +17,7 @@ def talker():
     #msg.u_2 = 0.15*math.tanh(float(t.secs-t_0.secs))
     msg.u_1 = 0.22*math.sin(t)
     msg.u_2 = 0.15*math.tanh(t)
-    rp.loginfo(msg)
+    #rp.loginfo(msg)
     pub.publish(msg)
     r.sleep()
     t+=1.0/f

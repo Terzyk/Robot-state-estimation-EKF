@@ -37,7 +37,7 @@ def ster_callback(data):
     delta_t = float(t.secs - t_0.secs)
     msg.beta,msg.theta,msg.x,msg.y = kinematyka(delta_t,data.u_1,data.u_2)
     state_pub.publish(msg)
-    rp.loginfo(msg)
+    #rp.loginfo(msg)
     r.sleep()
 
 
